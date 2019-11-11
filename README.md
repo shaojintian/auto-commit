@@ -9,7 +9,7 @@ node index
 
 效果如下：
 
-<img src="./screenshots/1.png" />
+<-- <img src="./screenshots/1.png" /> -->
 
 如果你喜欢或者对你有帮助，给我点个赞支持下吧😊
 
