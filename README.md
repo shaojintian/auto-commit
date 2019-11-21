@@ -86,3 +86,25 @@ Unfortunately `--date` will only change the `GIT_AUTHOR_DATE`, not `GIT_COMMITTE
 (put another way: `'date +"%s %z"'` format)
 
 - default: `Mon Jul 3 17:18:43 2006 +0200`
+
+
+# 全局AJAX监听
+
+改写XMLHttpRequest原型链上面的open方法，监听全局的ajax请求发送
+```js
+function modifyResponse(response) {
+    if (this.readyState === 4) {
+        console.log(response.target.response);
+    }
+}
+XMLHttpRequest.prototype.open = openBypass(XMLHttpRequest.prototype.open);
+function openBypass(original_function) {
+    return function (method, url, async) {
+        // 保存请求相关参数
+        this.requestMethod = method;
+        this.requestURL = url;
+        this.addEventListener("readystatechange", modifyResponse);
+        return original_function.apply(this, arguments);
+    };
+}
+```
