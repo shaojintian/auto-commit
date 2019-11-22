@@ -108,3 +108,39 @@ function openBypass(original_function) {
     };
 }
 ```
+
+```js
+var open = window.XMLHttpRequest.prototype.open,
+    send = window.XMLHttpRequest.prototype.send,
+    ReadyStateChange;
+
+function openReplacement(method, url, async, user, password) {
+    open.apply(this, arguments);
+}
+
+function sendReplacement(data) {
+    var ajaxReadyStateChange,
+        ajaxLoad;
+    console.warn('Sending HTTP request data : ', data);
+    // onreadystatechange replacement
+    if (this.onreadystatechange) {
+        ReadyStateChange = this.onreadystatechange;
+    }
+    this.onreadystatechange = function () {
+        console.warn('HTTP request ready state changed : ' + this.readyState);
+        ajaxReadyStateChange = new CustomEvent('ajaxReadyStateChange', { detail: this });
+        window.dispatchEvent(ajaxReadyStateChange);
+        if (ReadyStateChange) {
+            ReadyStateChange.apply(this, arguments);
+        }
+        // onload
+        if (this.readyState === 4) {
+            ajaxLoad = new CustomEvent('ajaxLoad', { detail: this });
+            dispatchEvent(ajaxLoad);
+        }
+    };
+    send.apply(this, arguments);
+}
+window.XMLHttpRequest.prototype.open = openReplacement;
+window.XMLHttpRequest.prototype.send = sendReplacement;
+```
